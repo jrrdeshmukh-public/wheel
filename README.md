@@ -1,4 +1,4 @@
-# Auto Trader - Interactive Trading Dashboard
+# Wheel - Interactive Options Trading Dashboard
 
 This project implements an **interactive options trading dashboard** using **C++**, **OpenGL**, **GLFW**, **ImGui**, and a **custom TWS client** (Interactive Brokers API).
 
@@ -27,81 +27,53 @@ It connects to a live TWS (Trader Workstation) or IB Gateway instance to allow:
 - Preview filtered options dynamically.
 
 ### 🛒 Cart System
-- Add filtered options to a **Cart** before placing.
-- Edit quantities and remove items.
-- Batch-place multiple orders at once.
-
----
-
-## How It Works
-
-1. **Startup**: Initializes OpenGL, GLFW, and ImGui. Connects to TWS at `localhost:4000`.
-2. **Main UI**: Single unified window with 3 tabs:
-   - **Available Options**: Shows stock positions and possible covered calls.
-   - **Options Selector**: Filters and displays available option contracts.
-   - **Cart**: Holds orders ready to be placed.
-
-3. **Routing and Placing Orders**:
-   - User selects stock, filters contracts, adds options to cart.
-   - Orders are placed by sending them through the TWS client interface.
-
----
-
-## Dependencies
-
-- **GLEW**: OpenGL extension wrangler library
-- **GLFW**: OpenGL window and input management
-- **ImGui**: Immediate Mode GUI for C++
-- **Interactive Brokers C++ API**: 
-  - `EClientSocket`, `EWrapper`, `Contract`, `Order`, etc.
-  - Custom wrapper client (`CppClient`) provided.
+- Add filtered options to a cart.
+- Manage quantities and status.
+- One-click placement of multiple options orders from the cart.
 
 ---
 
 ## Code Structure
 
-| File                     | Purpose                                            |
-|---------------------------|----------------------------------------------------|
-| `main.cpp`                | Main application logic and UI rendering            |
-| `CppClient.h/.cpp`        | Client wrapper for IB API                          |
-| `ContractSamples.h`       | Example contracts for different asset types        |
-| `OrderSamples.h`          | Example orders (Market, Limit, etc.)               |
-| `Utils.h`                 | Helper functions                                   |
+### `main()`
+- Initializes **GLFW**, **GLEW**, and **ImGui**.
+- Creates a window and sets up rendering.
+- Connects the `CppClient` to TWS on `localhost:4000`.
+- Enters the render loop where `RenderUnifiedWindow()` is called each frame.
+
+### `RenderUnifiedWindow(CppClient* client)`
+- Builds the complete UI:
+  - **Account Summary**: Pick an account and view details.
+  - **Available Options**: View owned stocks and choose stocks for covered call writing.
+  - **Options Selector**: Filter and select appropriate options contracts.
+  - **Cart**: Manage and place orders.
+
+### Data Fetching and Caching
+- `getOrUseCachedAccountList()` - Fetch account list once.
+- `getOrUseCachedAccountSummary()` - Fetch and cache account balances.
+- `getOrUseCachedOptionsTrades()` - Fetch open stock positions and possible calls.
+- `getOrUseCachedOptionContracts()` - Fetch available option contracts for a stock.
+- `getOrUseCachedStockPrice()` - Fetch current stock prices when needed.
 
 ---
 
-## Main Components
+## Requirements
 
-### Client Interaction
-- `CppClient` handles connection, stock price queries, account summaries, options chain queries, and order placement.
-
-### UI Components
-- **Account Summary**: Net liquidation, funds, day trade info.
-- **Options Discovery**: Shows your current stock positions and available call writing opportunities.
-- **Options Filtering**: Filter by delta and expiry range.
-- **Cart Management**: View, modify, and send option orders.
-
-### State Management
-- `currentTab`: Controls the current active ImGui tab.
-- `routedSymbol`, `routedContracts`: Manage selected symbol and contracts routing.
-- Caching:
-  - Stock prices
-  - Account list
-  - Option trades
-  - Option contracts
+- **C++17** or later
+- **GLEW** for OpenGL extensions
+- **GLFW** for window creation and input
+- **Dear ImGui** for UI rendering
+- **Interactive Brokers C++ API** (EClientSocket, Contract, Order, etc.)
 
 ---
 
-## Building and Running
+## Running the Application
 
-### Prerequisites
-
-- C++17+ compiler
-- GLEW, GLFW, and ImGui installed
-- Interactive Brokers TWS or IB Gateway running
-- IB API C++ headers and libraries
-
-### Build (Example with g++)
-
-```bash
-g++ main.cpp CppClient.cpp -o AutoTrader \
+1. Install and run TWS or IB Gateway locally.
+2. Enable API Access in TWS:
+   - Configure > API > Settings > Enable ActiveX and Socket Clients
+   - Set socket port to `4000`
+3. Build the project with a C++ compiler.
+4. Run the executable:
+   ```bash
+   ./wheel
